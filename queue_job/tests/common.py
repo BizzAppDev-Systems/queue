@@ -420,11 +420,12 @@ class OdooDocTestCase(doctest.DocTestCase):
             tearDown=tearDown,
             checker=checker,
         )
+        self.__class__.__unittest_skip__ = False
         self.test_sequence = seq
 
     def setUp(self):
         """Log an extra statement which test is started."""
-        super(OdooDocTestCase, self).setUp()
+        super().setUp()
         logging.getLogger(__name__).info("Running tests for %s", self._dt_test.name)
 
 
@@ -447,6 +448,9 @@ def load_doctests(module):
         for idx, test in enumerate(doctest.DocTestSuite(module)):
             odoo_test = OdooDocTestCase(test, seq=idx)
             odoo_test.test_tags = {"standard", "at_install", "queue_job", "doctest"}
+            if not hasattr(odoo_test, "test_class"):
+                odoo_test.test_class = False
+            odoo_test.test_module = "queue_job"
             tests.addTest(odoo_test)
 
         return tests
